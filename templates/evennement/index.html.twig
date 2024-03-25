@@ -1,0 +1,110 @@
+{% extends 'sidebar.html.twig' %}
+{% block container %}
+    {% block title %}{% endblock %}
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+
+
+    {% block body %}
+        <div class="event-container">
+            <h1>Evennement index</h1>
+
+            <div class="event-list">
+                {% for evennement in evennements %}
+                    <div class="event">
+                        <div class="event-header">
+                            <h2>{{ evennement.nomEvent }}</h2>
+                        </div>
+                        <div class="event-details">
+                            <div class="event-meta">
+                                <span class="event-date"><i class="fas fa-calendar-alt"></i> {{ evennement.date ? evennement.date|date('Y-m-d') : '' }}</span> <!-- Add Font Awesome icon -->
+                                <span class="event-address"><strong>Adresse:</strong> {{ evennement.adresse }}</span>
+                                <span class="event-montant"><strong>Montant:</strong> {{ evennement.montant }}</span>
+
+
+                            </div>
+
+                            <p><strong>Description:</strong> {{ evennement.description }}</p>
+                            <div class="rating"><strong>Rating:</strong> {% for i in 1..evennement.rating %}<span>⭐</span>{% endfor %}</div> <!-- Display stars based on rating -->
+                            <div class="progress-container">
+                                {{ render(controller('App\\Controller\\EvennementController::progressBar', {'evennement': evennement})) }}
+                            </div>
+                        </div>
+                        <div class="event-actions">
+                            <a href="{{ path('app_evennement_show', {'id': evennement.id}) }}">show</a>
+                            <a href="{{ path('app_evennement_edit', {'id': evennement.id}) }}">edit</a>
+
+                        </div>
+                        <button class="btn-give-donation" data-event-id="{{ evennement.id }}">Give Donation</button> <!-- Add data-event-id attribute -->
+                    </div>
+
+                    <div id="donationModal{{ evennement.id }}" class="modal"> <!-- Append evennement.id to the id -->
+                        <div class="modal-content">
+                            <span class="close" onclick="closeDonationPopup({{ evennement.id }})">&times;</span> <!-- Pass evennement.id to the function -->
+                            <h2>Give Donation</h2>
+                            <p>Enter the donation amount:</p>
+                            <form id="donationForm{{ evennement.id }}" action="{{ path('app_don_give_donation', {'id': evennement.id}) }}" method="POST">
+                                <input type="number" name="montant" placeholder="Enter amount" required>
+                                <button type="submit">Submit</button>
+                            </form>
+
+                        </div>
+                    </div>
+
+
+                {% else %}
+                    <p class="no-records">No records found</p>
+                {% endfor %}
+            </div>
+
+            <a href="{{ path('app_evennement_new') }}" class="create-new">Create new</a>
+        </div>
+
+
+        {% block css %}
+            <link rel="stylesheet" href="../../assets/css/event.css" />
+            <link rel="stylesheet" href="../../assets/css/popup.css" />
+        {% endblock %}
+
+        {% block js %}
+            <script src="{{ asset('../../assets/js/event.js') }}"></script>
+<script>// Function to open the donation popup
+    function openDonationPopup(eventId) {
+        var modal = document.getElementById("donationModal" + eventId);
+        modal.style.display = "block";
+    }
+
+    // Function to close the donation popup
+
+    function closeDonationPopup() {
+        var modal = document.querySelector(".modal");
+        modal.style.display = "none";
+    }
+
+
+    // Close the donation popup when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target.className === "modal") {
+            event.target.style.display = "none";
+        }
+    };
+
+    // Get all buttons with class "btn-give-donation"
+    var donationButtons = document.querySelectorAll(".btn-give-donation");
+
+    // Add event listeners to each button
+    donationButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+            var eventId = this.getAttribute("data-event-id");
+            openDonationPopup(eventId);
+        });
+    });
+</script>
+        {% endblock %}
+
+    {% endblock %}
+{% endblock %}
+
+
+
