@@ -1,4 +1,121 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{#{{ form_start(form, {'attr': {'id': 'event_form'}}) }}#}
+{#{{ form_widget(form) }}#}
+{#    <button class="btn">{{ button_label|default('Save') }}</button>#}
+{#{{ form_end(form) }}#}
+
+
+
+{{ form_start(form, {'attr': {'id': 'event_form', 'class': 'custom-form','novalidate': 'novalidate'}}) }}
+
+<div class="form-group">
+    {{ form_label(form.nom_event) }}
+    {{ form_widget(form.nom_event, {'attr': {'class': 'form-control js-input'}}) }}
+    {% if form_errors(form.nom_event) %}
+        <div class="error">{{ form_errors(form.nom_event) }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.montant) }}
+    {{ form_widget(form.montant, {'attr': {'class': 'form-control js-input', 'type': 'number'}}) }}
+    {% if form_errors(form.montant) %}
+        <div class="error-message">{{ form_errors(form.montant) }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.date) }}
+    {{ form_widget(form.date, {'attr': {'class': 'form-control js-input js-datepicker', 'type': 'date'}}) }}
+    {% if form_errors(form.date) %}
+        <div class="error-message">{{ form_errors(form.date) }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.adresse) }}
+    {{ form_widget(form.adresse, {'attr': {'class': 'form-control js-input'}}) }}
+    {% if form_errors(form.adresse) %}
+        <div class="error-message">{{ form_errors(form.adresse) }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.description) }}
+    {{ form_widget(form.description, {'attr': {'class': 'form-control js-input'}}) }}
+    {% if form_errors(form.description) %}
+        <div class="error-message">{{ form_errors(form.description) }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Save') }}</button>
+</div>
+
 {{ form_end(form) }}
+
+
+<style>
+
+
+
+    /* Form Group Styles */
+    .form-group {
+        margin-bottom: 20px; /* Add space between form groups */
+    }
+
+    /* Form Label Styles */
+    .form-group label {
+        font-weight: bold; /* Bold label text */
+    }
+
+    /* Button Styles */
+    .btn {
+        padding: 10px 20px; /* Add padding to buttons */
+        font-size: 16px; /* Font size for buttons */
+        border: none; /* Remove button border */
+        border-radius: 4px; /* Rounded corners for buttons */
+        cursor: pointer; /* Add cursor pointer on hover */
+        background-color: #007bff; /* Button background color */
+        color: #fff; /* Button text color */
+    }
+
+    .btn:hover {
+        background-color: #0056b3; /* Button background color on hover */
+    }
+
+    /* Date Field Styles */
+    .input-group.date {
+        position: relative;
+    }
+
+    .input-group.date .form-control {
+        border-radius: 4px; /* Rounded corners for the date field */
+    }
+
+    /* Calendar Icon Styles */
+    .input-group-append .input-group-text {
+        border-radius: 0 4px 4px 0; /* Rounded corners for the icon container */
+        border: none; /* Remove border for the icon container */
+        background-color: #007bff; /* Background color for the icon container */
+        color: #fff; /* Color for the icon */
+        cursor: pointer; /* Add cursor pointer on hover */
+    }
+
+    .input-group-append .input-group-text:hover {
+        background-color: #0056b3; /* Background color for the icon container on hover */
+    }
+
+    /* Form Validation Styles */
+    .is-invalid {
+        border-color: red !important; /* Change border color to red for invalid fields */
+    }
+
+    .error-message {
+        color: red; /* Color for error messages */
+        font-size: 14px; /* Font size for error messages */
+    }
+
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

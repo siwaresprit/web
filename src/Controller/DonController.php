@@ -101,4 +101,20 @@ class DonController extends AbstractController
         return $this->redirectToRoute('app_evennement_index');
     }
 
+
+    #[Route('/donations', name: 'donations')]
+    public function donations(DonRepository $donationRepository): Response
+    {
+        // Get donations by month from the repository
+        $donationsByMonth = $donationRepository->getDonationsByMonth();
+
+        // Calculate total donations
+        $totalDonations = array_sum($donationsByMonth['total']);
+
+        // Pass the data to the template
+        return $this->render('evennement/admindash.html.twig', [
+            'donationsByMonth' => $donationsByMonth,
+            'totalDonations' => $totalDonations,
+        ]);
+    }
 }

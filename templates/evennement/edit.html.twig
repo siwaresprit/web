@@ -1,13 +1,14 @@
-{% extends 'sidebar.html.twig' %}
 
-{% block title %}Edit Evennement{% endblock %}
+
+
 
 {% block body %}
-    <h1>Edit Evennement</h1>
-
+    <div class="container">
     {{ include('evennement/_form.html.twig', {'button_label': 'Update'}) }}
 
-    <a href="{{ path('app_evennement_index') }}">back to list</a>
+    </div>
 
-    {{ include('evennement/_delete_form.html.twig') }}
+
 {% endblock %}
+
+

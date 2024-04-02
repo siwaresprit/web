@@ -1,0 +1,568 @@
+
+
+{% extends 'sidebar.html.twig' %}
+
+{% block container %}
+{% block the_navbar %}
+    {% endblock %}
+
+
+        {% block title %}{% endblock %}
+
+    {% block body %}
+
+
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-4">
+                    <input type="text" id="searchInput" placeholder="Search... " class="form-control">
+                </div>
+                <div class="col-md-2 mb-4">
+                    <button  class=" add-event-button btn btn-primary" id="add-event-button">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="width: 300px; height: 250px; background-color: white; border-radius: 10px; margin-left: 30px;">
+            <div class="d-flex px-4">
+                <div class="avatar flex-shrink-0 me-3">
+                    <img src="../../assets/img/icons/unicons/wallet.png" alt="User">
+                </div>
+                <div>
+                    <small class="text-muted d-block">Total Donations</small>
+                    <div class="d-flex align-items-center">
+                        <h6 class="mb-0 me-1">$459.10</h6>
+                        <small class="text-success fw-medium">
+                            <i class="bx bx-chevron-up"></i>
+                            42.9%
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <canvas id="donationsChart" width="300" height="200"></canvas>
+        </div>
+
+
+        <div id="chart"></div>
+
+
+        <div class="container">
+            <table  id="eventTable" class="table">
+                <thead>
+                <tr>
+
+                    <th>Nom Event</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Adresse</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for evennement in evennements %}
+                    <tr>
+
+                        <td>{{ evennement.nomEvent }}</td>
+                        <td>{{ evennement.montant }}</td>
+                        <td>{{ evennement.date ? evennement.date|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ evennement.adresse }}</td>
+                        <td>{{ evennement.description }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="edit-event-button btn btn-primary" data-id="{{ evennement.id }}">Edit</button>
+                                <form action="{{ path('app_evennement_delete', {'id': evennement.id}) }}" method="post" class="delete-form" style="display: inline-block;">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evennement.id) }}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">No events found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <div id="event-popup" class="popup">
+            <div class="popup-content">
+                <!-- Content of the popup -->
+                <div id="form-container"></div>
+                <span id="close-popup" class="close-button">&times;</span>
+
+            </div>
+        </div>
+        <div id="popup-overlay" class="overlay"></div>
+
+
+        <!-- Pop-up container for editing event -->
+        <div id="edit-event-popup" class="popup">
+            <div class="popup-content">
+                <div id="edit-form-container"></div>
+                <span id="close-popup" class="close-button">&times;</span>
+
+            </div>
+        </div>
+        <div id="popup-overlay" class="overlay"></div>
+
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+
+        <link rel="stylesheet" href="../../assets/css/admindash.css" />
+        <link rel="stylesheet" href="../../assets/css/popup.css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
+        <script>
+
+
+
+
+
+//add
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.getElementById('add-event-button');
+    const popup = document.getElementById('event-popup');
+    const closeAddPopupBtn = document.getElementById('close-popup');
+    const formContainer = document.getElementById('form-container');
+    const overlay = document.getElementById('popup-overlay');
+
+
+    addButton.addEventListener('click', function() {
+        popup.style.display = 'block';
+        // Charger le contenu du formulaire dans le popup
+        formContainer.innerHTML = '';
+        fetch('/event/new') // Modifier l'URL selon vos besoins
+            .then(response => response.text())
+            .then(html => {
+                formContainer.innerHTML = html;
+                const form = document.getElementById('event_form');
+                form.action = '/event/new';
+
+
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(html => {
+                                    formContainer.innerHTML = html;
+                                });
+                            }
+                            // Close the popup
+                            popup.style.display = 'none';
+                            overlay.style.display = 'none';
+                            // Reload the page to reflect the changes
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                });
+            });
+    });
+
+
+
+
+
+    closeAddPopupBtn.addEventListener('click', function() {
+        popup.style.display = 'none';
+        overlay.style.display = 'none'; // Hide overlay
+    });
+
+    // Close popup and overlay when clicking on overlay
+    overlay.addEventListener('click', function() {
+        popup.style.display = 'none';
+        this.style.display = 'none';
+    });
+});
+
+
+
+
+
+var nomInput = document.getElementById('event_nom');
+var montantInput = document.getElementById('event_montant');
+var dateInput = document.getElementById('event_date');
+var adresseInput = document.getElementById('event_adresse');
+var descriptionInput = document.getElementById('event_description');
+var form = document.getElementById('event_form');
+
+
+// Fonctions de validation pour chaque champ
+function validateNom() {
+    var nomValue = nomInput.value.trim();
+    if (nomValue === '') {
+        showError(nomInput, 'Merci de saisir le nom de l evenement.');
+        return false; // Validation échoue
+    } else if (nomValue.length < 3) {
+        showError(nomInput, 'Le nom doit avoir au moins 10 caractères.');
+        return false; // Validation échoue
+    } else {
+        hideError(nomInput);
+        return true; // Validation réussie
+    }
+}
+
+function validateMontant() {
+    var montantValue = montantInput.value.trim();
+    if (montantValue === '') {
+        showError(montantInput, 'Merci de saisir un montant.');
+        return false; // Validation échoue
+    } else if (montantValue.length < 3) {
+        showError(montantInput, 'Le montant doit être un nombre positif.');
+        return false; // Validation échoue
+    } else {
+        hideError(montantInput);
+        return true; // Validation réussie
+    }
+}
+
+function validateDate() {
+    var dateValue = dateInput.value.trim();
+    if (dateValue === '') {
+        showError(dateInput, "Veuillez entrer une date.");
+        return false; // Validation échoue
+    } else if (!isValidDate(datelValue)) {
+        showError(dateInput, "La date doit être une date futur.");
+        return false; // Validation échoue
+    } else {
+        hideError(dateInput);
+        return true; // Validation réussie
+    }
+}
+
+function validateAdresse() {
+    var adresseValue = adresseInput.value.trim();
+    if (adresseValue === '') {
+        showError(adresseInput, 'Merci de saisir l adresse.');
+        return false; // Validation échoue
+    } else if (adresseValue.length < 3) {
+        showError(adresseInput, 'L adresse doit avoir au moins 10 caractères.');
+        return false; // Validation échoue
+    } else {
+        hideError(adresseInput);
+        return true; // Validation réussie
+    }
+}
+
+function validateDescription() {
+    var descriptionValue = descriptionInput.value.trim();
+    if (descriptionValue === '') {
+        showError(descriptionInput, "La description est obligatoire.");
+        return false; // Validation échoue
+    } else if (descriptionValue.length < 3) {
+        showError(descriptionInput, 'La description doit avoir au moins 10 caractères.');
+        return false; // Validation échoue
+    } else {
+        hideError(descriptionInput);
+        return true; // Validation réussie
+    }
+}
+
+// Fonction pour afficher les erreurs en rouge
+function showError(input, message) {
+    var errorDiv = input.nextElementSibling;
+    if (!errorDiv || !errorDiv.classList.contains('error-message')) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        input.parentNode.insertBefore(errorDiv, input.nextElementSibling);
+    }
+    errorDiv.textContent = message;
+    errorDiv.style.color = 'red'; // Couleur rouge pour les messages d'erreur
+}
+
+// Fonction pour masquer les erreurs
+function hideError(input) {
+    var errorDiv = input.nextElementSibling;
+    if (errorDiv && errorDiv.classList.contains('error-message')) {
+        errorDiv.textContent = '';
+    }
+}
+
+// Fonction pour valider l'email
+function isValidEmail(email) {
+    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+// Fonction pour valider le numéro de téléphone
+function isValidPhoneNumber(numtel) {
+    var regex = /^(\+216)?[2459]\d{7}$/;
+    return regex.test(numtel);
+}
+
+// Fonction pour valider le mot de passe
+function isValidPassword(password) {
+    var regex = /^(?=.\d)(?=.[a-z])(?=.[A-Z])(?=.[^\w\d\s:])([^\s]){8,}$/;
+    return regex.test(password);
+}
+
+// Fonction de validation du formulaire
+function validateForm() {
+    // Valider chaque champ du formulaire
+    var nomValid = validateNom();
+    var montantValid = validateMontant();
+    var dateValid = validateDate();
+    var adresseValid = validateAdresse();
+    var descriptionValid = validateDescription();
+
+    // Retourner true si tous les champs sont valides, sinon retourner false
+    return nomValid && montantValid && dateValid && adresseValid && descriptionValid;
+}
+
+
+
+
+
+
+
+
+
+
+// edit
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const editButtons = document.querySelectorAll('.edit-event-button');
+                const editPopup = document.getElementById('edit-event-popup');
+                const closeEditPopupBtn = document.getElementById('close-popup');
+                const editFormContainer = document.getElementById('edit-form-container');
+                const overlay = document.getElementById('popup-overlay');
+
+                editButtons.forEach(function(editButton) {
+                    editButton.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const eventId = this.getAttribute('data-id');
+                        editPopup.style.display = 'block';
+                        overlay.style.display = 'block'; // Show overlay
+                        editFormContainer.innerHTML = '';
+                        fetch('/event/' + eventId + '/edit')
+                            .then(response => response.text())
+                            .then(html => {
+                                editFormContainer.innerHTML = html;
+                                const editForm = document.getElementById('event_form');
+                                editForm.action = '/event/' + eventId + '/edit';
+                            });
+                    });
+                });
+
+                closeEditPopupBtn.addEventListener('click', function() {
+                    editPopup.style.display = 'none';
+                    overlay.style.display = 'none'; // Hide overlay
+                });
+
+                // Close popup and overlay when clicking on overlay
+                overlay.addEventListener('click', function() {
+                    editPopup.style.display = 'none';
+                    this.style.display = 'none';
+                });
+            });
+
+
+
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+                let input = document.getElementById('searchInput');
+                let table = document.getElementById('eventTable');
+                let rows = table.getElementsByTagName('tr');
+
+                // Add event listener to input field
+                input.addEventListener('input', function() {
+                    let filter = input.value.toUpperCase();
+
+                    // Loop through all table rows starting from index 1
+                    for (let i = 0; i < rows.length; i++) {
+                        // Skip the first row (header row)
+                        if (i === 0) continue;
+
+                        let cells = rows[i].getElementsByTagName('td');
+                        let rowVisible = false; // Flag to determine if row should be visible
+
+                        // Loop through all cells in the row
+                        for (let j = 0; j < cells.length; j++) {
+                            let cell = cells[j];
+                            if (cell) {
+                                // Check if cell content matches the search query
+                                if (cell.textContent.toUpperCase().indexOf(filter) > -1) {
+                                    rowVisible = true; // If any cell matches, set flag to true
+                                    break; // Break the loop since we found a match
+                                }
+                            }
+                        }
+
+                        // Show or hide the row based on the flag
+                        if (rowVisible) {
+                            rows[i].style.display = ''; // Show the row
+                        } else {
+                            rows[i].style.display = 'none'; // Hide the row
+                        }
+                    }
+                });
+            });
+
+//chart
+// Parse eventData JSON string passed from the controller
+document.addEventListener('DOMContentLoaded', function () {
+    const eventData = {{ totalDonationsByEventId | json_encode | raw }};
+    const eventIds = Object.keys(eventData);
+    const totalDonations = Object.values(eventData);
+
+    // Extracting the total donations from the objects
+    const numericTotalDonations = totalDonations.map(item => parseFloat(item.totalDonations));
+
+    const maxTotalDonation = Math.max(...numericTotalDonations);
+
+    const ctx = document.getElementById('donationsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: eventIds,
+            datasets: [{
+                label: 'Total Donations',
+                data: numericTotalDonations,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: maxTotalDonation
+                },
+                x: {
+                    grid: {
+                        display: false // Remove the x-axis grid lines
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Hide the legend
+                }
+            },
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: 10
+                }
+            },
+            responsive: true // Allow the chart to resize based on the container size
+        }
+    });
+});
+
+
+// pagination
+
+$(document).ready(function() {
+    $('#eventTable').DataTable();
+});
+
+
+
+        </script>
+
+
+        <style>
+            /* Popup container */
+            .popup {
+                display: none; /* Hide the pop-up by default */
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #ffffff;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                z-index: 10000; /* Set a high z-index value */
+                padding: 20px;
+                width: 50%; /* Adjust the maximum width as needed */
+                height: 80vh; /* Adjust the maximum height as needed */
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Popup Content Styles */
+            .popup-content {
+                margin: 0 auto; /* Center the content horizontally */
+            }
+
+            /* Close Button Styles */
+            .close-button {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                cursor: pointer;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+                z-index: 9999; /* Ensure overlay is on top of everything */
+            }
+            .close-button {
+                position: absolute;
+                top: 2px;
+                right: 10px;
+                cursor: pointer;
+                font-size: 30px; /* Adjust the font size as needed */
+            }
+
+            #searchInput {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-sizing: border-box;
+            }
+
+            #searchInput:focus {
+                outline: none;
+                border-color: #007bff; /* Change to your desired focus color */
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25); /* Change to your desired focus shadow */
+            }
+
+
+            .is-invalid {
+                border-color: red !important; /* Change border color to red for invalid fields */
+            }
+
+            .error-message {
+                color: red; /* Color for error messages */
+                font-size: 14px; /* Font size for error messages */
+            }
+
+        </style>
+    {% endblock %}
+{% endblock %}
+
+
+
+
+
+

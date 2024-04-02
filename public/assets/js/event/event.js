@@ -1,14 +1,15 @@
-// Function to open the donation popup
 function openDonationPopup(eventId) {
     var modal = document.getElementById("donationModal" + eventId);
     modal.style.display = "block";
 }
 
 // Function to close the donation popup
-function closeDonationPopup(eventId) {
-    var modal = document.getElementById("donationModal" + eventId);
+
+function closeDonationPopup() {
+    var modal = document.querySelector(".modal");
     modal.style.display = "none";
 }
+
 
 // Close the donation popup when clicking outside of it
 window.onclick = function(event) {
@@ -27,27 +28,3 @@ donationButtons.forEach(function(button) {
         openDonationPopup(eventId);
     });
 });
-
-document.addEventListener('DOMContentLoaded', function() {
-    var donationForms = document.querySelectorAll('.donation-form');
-    donationForms.forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-            var formData = new FormData(form);
-            var eventId = form.dataset.eventId;
-            var url = form.action;
-            fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    // Handle the response if needed
-                })
-                .catch(error => console.error('Error:', error));
-        });
-    });
-});
-

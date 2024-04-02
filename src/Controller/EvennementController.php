@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Don;
 use App\Entity\Evennement;
 use App\Form\EvennementType;
 use App\Repository\DonRepository;
 use App\Repository\EvennementRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,11 +17,37 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/event')]
 class EvennementController extends AbstractController
 {
+    /**
+     * @throws NonUniqueResultException
+     */
     #[Route('/', name: 'app_evennement_index', methods: ['GET'])]
     public function index(EvennementRepository $evennementRepository): Response
     {
+        // Fetch all events
+        $evennements = $evennementRepository->findAll();
+
+        // Fetch upcoming event
+        $upcomingEvent = $evennementRepository->findUpcomingEvent();
+
+        // Render the template with both the list of events and the upcoming event
         return $this->render('evennement/index.html.twig', [
+            'evennements' => $evennements,
+            'upcomingEvent' => $upcomingEvent,
+        ]);
+    }
+
+
+    #[Route('/admin', name: 'app_evennement_admin', methods: ['GET'])]
+    public function adminsash(EvennementRepository $evennementRepository, DonRepository $donRepository): Response
+    {
+        $totalDonationsByEventId = $evennementRepository->getTotalDonationsByEventId();
+
+
+        // Render the template with event data
+        return $this->render('evennement/admindash.html.twig', [
             'evennements' => $evennementRepository->findAll(),
+            'totalDonationsByEventId' => $totalDonationsByEventId,
+
         ]);
     }
 
@@ -51,6 +79,25 @@ class EvennementController extends AbstractController
         ]);
     }
 
+//    #[Route('/{id}/edit', name: 'app_evennement_edit', methods: ['GET', 'POST'])]
+//    public function edit(Request $request, Evennement $evennement, EntityManagerInterface $entityManager): Response
+//    {
+//        $form = $this->createForm(EvennementType::class, $evennement);
+//        $form->handleRequest($request);
+//
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $entityManager->flush();
+//
+//            return $this->redirectToRoute('app_evennement_index', [], Response::HTTP_SEE_OTHER);
+//        }
+//
+//        return $this->renderForm('evennement/edit.html.twig', [
+//            'evennement' => $evennement,
+//            'form' => $form,
+//        ]);
+//    }
+
+
     #[Route('/{id}/edit', name: 'app_evennement_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Evennement $evennement, EntityManagerInterface $entityManager): Response
     {
@@ -63,11 +110,12 @@ class EvennementController extends AbstractController
             return $this->redirectToRoute('app_evennement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('evennement/edit.html.twig', [
+        return $this->render('evennement/edit.html.twig', [
             'evennement' => $evennement,
-            'form' => $form,
+            'form' => $form->createView(), // Pass the form variable to the template
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_evennement_delete', methods: ['POST'])]
     public function delete(Request $request, Evennement $evennement, EntityManagerInterface $entityManager): Response
@@ -86,7 +134,7 @@ class EvennementController extends AbstractController
     public function progressBar(Evennement $evennement, DonRepository $donRepository): Response
     {
         // Retrieve the total donation amount for the given event
-        $totalDonationAmount = $donRepository->getTotalDonationAmount();
+        $totalDonationAmount = $donRepository->getTotalDonationForEvent();
 
         $montant = $evennement->getMontant();
 
@@ -98,4 +146,9 @@ class EvennementController extends AbstractController
             'percentage' => $percentage,
         ]);
     }
+
+
+
+
+
 }

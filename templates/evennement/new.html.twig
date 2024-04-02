@@ -1,13 +1,12 @@
-{% extends 'sidebar.html.twig' %}
-                {% block container%}
 
-{% block title %}New Evennement{% endblock %}
+
+
 
 {% block body %}
-    <h1>Create new Evennement</h1>
 
+    <div class="add">
     {{ include('evennement/_form.html.twig') }}
 
-    <a href="{{ path('app_evennement_index') }}">back to list</a>
-{% endblock %}
+    </div>
+
                 {% endblock %}

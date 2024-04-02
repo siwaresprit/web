@@ -64,9 +64,8 @@
 
 /* Style for the stars */
 .event-container .event-details .rating span {
-    color: blue; /* Change the color to blue */
     margin-right: 5px; /* Add spacing between stars */
-    opacity: 0.5; /* Set the opacity to make the stars transparent */
+    /* Set the opacity to make the stars transparent */
 }
 
 /* Define different colors for different progress levels */
@@ -105,67 +104,12 @@
 
 
 
-/*!* CSS for the modal content *!*/
-/*.modal-content {*/
-/*    background-color: #ffffff;*/
-/*    padding: 20px;*/
-/*    border-radius: 8px;*/
-/*    max-width: 400px; !* Set maximum width *!*/
-/*    width: 90%; !* Full width *!*/
-/*    max-height: 80%; !* Set maximum height *!*/
-/*    overflow-y: auto; !* Enable vertical scrolling if needed *!*/
-/*    position: absolute;*/
-/*    left: 50%;*/
-/*    top: 50%;*/
-/*    transform: translate(-50%, -50%);*/
-/*    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); !* Add shadow for depth *!*/
+
+
+
+/*.btn-give-donation:hover{*/
+/*    background-color: #0056b3; !* Darker blue on hover *!*/
 /*}*/
-
-/*!* Close button *!*/
-/*.close {*/
-/*    position: absolute;*/
-/*    top: 10px;*/
-/*    right: 10px;*/
-/*    color: #aaa;*/
-/*    font-size: 28px;*/
-/*    font-weight: bold;*/
-/*}*/
-
-/*.close:hover,*/
-/*.close:focus {*/
-/*    color: #333;*/
-/*    text-decoration: none;*/
-/*    cursor: pointer;*/
-/*}*/
-
-.btn-give-donation{
-    /* Existing styles */
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    /* New styles */
-    display: block; /* Make buttons block-level elements */
-    margin: 0 auto; /* Center horizontally */
-}
-
-/*!* CSS for the buttons *!*/
-/*#donationModal button[type="submit"] {*/
-/*    background-color: #007bff; !* Blue background color *!*/
-/*    color: #fff; !* White text color *!*/
-/*    border: none; !* Remove border *!*/
-/*    padding: 5px 10px; !* Add padding *!*/
-/*    border-radius: 5px; !* Add rounded corners *!*/
-/*    cursor: pointer; !* Add cursor pointer *!*/
-/*    transition: background-color 0.3s ease; !* Smooth transition *!*/
-/*}*/
-
-.btn-give-donation:hover{
-    background-color: #0056b3; /* Darker blue on hover */
-}
 
 .btn-give-donation {
     margin-bottom: 10px; /* Add some space below the button */

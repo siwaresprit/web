@@ -123,7 +123,7 @@
 
 
 
-
+{% block navbar %}
         <!-- Menu -->
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
@@ -1302,14 +1302,13 @@
         <!-- / Menu -->
 
 
-
         <!-- Layout container -->
         <div class="layout-page">
 
 
 
 
-
+{% block the_navbar %}
             <!-- Navbar -->
 
 
@@ -1775,6 +1774,8 @@
 
 
             <!-- / Navbar -->
+    {% endblock %}
+            {% endblock %}
 
 
 
@@ -1808,7 +1809,7 @@
 
 
 
-
+{% block footer %}
                 <!-- Footer -->
                 <footer class="content-footer footer bg-footer-theme">
                     <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
@@ -1832,7 +1833,7 @@
                     </div>
                 </footer>
                 <!-- / Footer -->
-
+{% endblock %}
 
                 <div class="content-backdrop fade"></div>
             </div>

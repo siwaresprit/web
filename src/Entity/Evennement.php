@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\UX\Turbo\Attribute\Broadcast;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: EvennementRepository::class)]
 #[Broadcast]
@@ -19,18 +21,22 @@ class Evennement
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+
     private ?string $nom_event = null;
 
     #[ORM\Column(nullable: true)]
+
     private ?float $montant = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(length: 255)]
     private ?string $adresse = null;
 
     #[ORM\Column(length: 5000, nullable: true)]
+
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]

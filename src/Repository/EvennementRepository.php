@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Evennement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,6 +21,43 @@ class EvennementRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Evennement::class);
     }
+
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findUpcomingEvent(): ?Evennement
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.date >= :currentDate')
+            ->orderBy('e.date', 'ASC')
+            ->setParameter('currentDate', new \DateTime())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+
+    public function getTotalDonationsByEventId(): array
+    {
+        $result = $this->createQueryBuilder('e')
+            ->select('e.id, SUM(d.montant_user) AS totalDonations')
+            ->leftJoin('e.dons', 'd')
+            ->groupBy('e.id')
+            ->getQuery()
+            ->getResult();
+
+        // Convert totalDonations to float values
+        foreach ($result as &$row) {
+            $row['totalDonations'] = (float)$row['totalDonations'];
+        }
+
+        return $result;
+    }
+
+
+
+
 
 //    /**
 //     * @return Evennement[] Returns an array of Evennement objects

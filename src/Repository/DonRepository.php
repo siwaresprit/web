@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Don;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,13 +24,24 @@ class DonRepository extends ServiceEntityRepository
     }
 
 
-    public function getTotalDonationAmount(): ?float
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getTotalDonationForEvent($eventId): float
     {
         return $this->createQueryBuilder('d')
-            ->select('SUM(d.montant_user)')
+            ->select('SUM(d.montant_user)') // Assuming 'montantUser' is the property representing the donation amount
+            ->andWhere('d.evenement_id = :eventId')
+            ->setParameter('eventId', $eventId)
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleScalarResult() ?? 0; // Return 0 if no donations found
     }
+
+
+
+
+
 
 //    /**
 //     * @return Don[] Returns an array of Don objects
